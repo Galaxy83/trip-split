@@ -48,9 +48,8 @@ export interface Expense {
 export interface TripState {
   currency: string;
   /**
-   * Share links encode this array under the key `players`.
-   * Keep that key so links created before the member rename still load.
-   * `normalizeTrip` also accepts `members` if it shows up in a payload.
+   * Saved trips and older share links use the key `players`.
+   * `normalizeTrip` also accepts `members`. New share links use a compact array.
    */
   players: Player[];
   expenses: Expense[];

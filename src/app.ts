@@ -46,7 +46,11 @@ function nameOf(name: string, index: number): string {
 }
 
 export function mount(root: HTMLElement): void {
-  const fromHash = tripFromHash(location.hash);
+  void boot(root);
+}
+
+async function boot(root: HTMLElement): Promise<void> {
+  const fromHash = await tripFromHash(location.hash);
   let state = fromHash ?? loadStoredTrip() ?? createDefaultTrip();
   state.currency = resolveCurrency(state.currency);
   if (fromHash) storeTrip(fromHash);
@@ -67,6 +71,7 @@ export function mount(root: HTMLElement): void {
   let cancelBtn: HTMLButtonElement;
   let okBtn: HTMLButtonElement;
   let toastTimer = 0;
+  let shareSeq = 0;
 
   const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
   themeMedia.addEventListener("change", () => {
@@ -404,9 +409,9 @@ export function mount(root: HTMLElement): void {
   }
 
   async function shareLink(): Promise<void> {
-    persist();
-    const ok = await copyText(location.href);
-    showToast(ok ? t().linkCopied : location.href);
+    const next = await persist();
+    const ok = await copyText(next);
+    showToast(ok ? t().linkCopied : next);
   }
 
   async function copySettlement(): Promise<void> {
@@ -451,10 +456,15 @@ export function mount(root: HTMLElement): void {
     URL.revokeObjectURL(url);
   }
 
-  function persist(): void {
+  function persist(): Promise<string> {
     storeTrip(state);
-    const next = shareLocation(location.href, encodeTrip(state), uiLang);
-    if (next !== location.href) history.replaceState(null, "", next);
+    const seq = ++shareSeq;
+    return encodeTrip(state).then((payload) => {
+      const next = shareLocation(location.href, payload, uiLang);
+      if (seq !== shareSeq) return location.href;
+      if (next !== location.href) history.replaceState(null, "", next);
+      return next;
+    });
   }
 
   function currentSettlement(): Settlement {
