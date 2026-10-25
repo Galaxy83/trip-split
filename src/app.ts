@@ -831,13 +831,12 @@ function stats(result: Settlement, currency: string): HTMLElement {
 
 function balanceTable(result: Settlement, currency: string, state: TripState): HTMLElement {
   const head = h("tr");
-  for (const label of [t().memberColumn, t().entryType, t().weight, t().spent, t().entryShare, t().balance]) {
+  for (const label of [t().memberColumn, t().weight, t().spent, t().entryShare, t().balance]) {
     head.append(h("th", { scope: "col" }, label));
   }
   const body = h("tbody");
   for (const row of result.balances) {
     const player = state.players.find((item) => item.id === row.id);
-    const typeLabel = player && entryType(player) === "group" ? t().entryGroup : t().entryMember;
     const weight = player ? String(entryWeight(player)) : "1";
     const nameCell = h("th", { scope: "row" });
     const name = h("bdi");
@@ -849,7 +848,6 @@ function balanceTable(result: Settlement, currency: string, state: TripState): H
         "tr",
         null,
         nameCell,
-        h("td", null, typeLabel),
         moneyCell(weight),
         moneyCell(formatMoney(row.spent, currency)),
         moneyCell(formatMoney(row.share, currency)),

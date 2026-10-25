@@ -469,7 +469,7 @@ button:disabled {
   font-size: 0.85rem;
 }
 
-.table-wrap { overflow-x: auto; margin-top: 0.9rem; }
+.table-wrap { margin-top: 0.9rem; }
 
 .balance {
   width: 100%;
@@ -482,6 +482,12 @@ button:disabled {
   padding: 0.5rem 0.3rem;
   text-align: end;
   vertical-align: baseline;
+  white-space: nowrap;
+}
+
+.balance thead th:not(:first-child),
+.balance td {
+  width: 1%;
 }
 
 .balance thead th {
@@ -501,8 +507,36 @@ button:disabled {
 }
 
 .balance th[scope="row"] {
-  max-width: 8.5rem;
-  overflow-wrap: anywhere;
+  width: 100%;
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.balance th[scope="row"] bdi {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .balance { font-size: 0.8125rem; }
+  .balance thead th { font-size: 0.68rem; }
+  .balance th,
+  .balance td { padding: 0.4rem 0.12rem; }
+  .balance th[scope="row"],
+  .balance thead th:first-child { padding-inline-end: 0.35rem; }
+}
+
+@media (max-width: 360px) {
+  .card { padding-inline: 0.7rem; }
+  .balance { font-size: 0.75rem; }
+  .balance thead th { font-size: 0.62rem; }
+  .balance th,
+  .balance td { padding: 0.32rem 0.05rem; }
+  .balance th[scope="row"],
+  .balance thead th:first-child { padding-inline-end: 0.28rem; }
 }
 
 .pos { color: var(--good); font-weight: 600; }
