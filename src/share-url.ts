@@ -4,7 +4,7 @@ import type { Lang } from "./preferences";
 export function langFromSearch(search: string): Lang | null {
   const query = search.startsWith("?") ? search.slice(1) : search;
   const value = new URLSearchParams(query).get("lang")?.toLowerCase();
-  if (value === "en" || value === "he") return value;
+  if (value === "en" || value === "he" || value === "ru") return value;
   return null;
 }
 

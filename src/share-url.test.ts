@@ -17,9 +17,12 @@ const trip: TripState = {
 describe("share url language", () => {
   it("lets the link language override the saved language", () => {
     expect(langFromSearch("?lang=he")).toBe("he");
+    expect(langFromSearch("?lang=ru")).toBe("ru");
+    expect(langFromSearch("?lang=RU")).toBe("ru");
     expect(langFromSearch("lang=EN")).toBe("en");
     expect(resolveLang("?lang=he", "en")).toBe("he");
-    expect(resolveLang("?lang=en", "he")).toBe("en");
+    expect(resolveLang("?lang=ru", "he")).toBe("ru");
+    expect(resolveLang("?lang=en", "ru")).toBe("en");
     expect(resolveLang("?other=1&lang=he", "en")).toBe("he");
   });
 
@@ -44,5 +47,11 @@ describe("share url language", () => {
     expect(switched.searchParams.get("lang")).toBe("en");
     expect(tripFromHash(switched.hash)).toEqual(trip);
     expect(switched.hash).toBe(`#${encoded}`);
+
+    const russian = new URL(shareLocation(switched.href, encoded, "ru"));
+    expect(russian.searchParams.get("lang")).toBe("ru");
+    expect(resolveLang(russian.search, "he")).toBe("ru");
+    expect(tripFromHash(russian.hash)).toEqual(trip);
+    expect(russian.hash).toBe(`#${encoded}`);
   });
 });

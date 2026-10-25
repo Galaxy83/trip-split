@@ -65,5 +65,13 @@ describe("currencies", () => {
     expect(currencyName("€", "he")).toBe("אירו (€)");
     expect(currencyName("GEL", "he")).toBe("לארי גאורגי");
     expect(currencyName("nope", "en")).toBe("Israeli Shekel (₪)");
+    expect(currencyName("ILS", "ru")).toBe("Израильский шекель (₪)");
+    expect(currencyName("€", "ru")).toBe("Евро (€)");
+    expect(currencyName("GEL", "ru")).toBe("Грузинский лари");
+    expect(currencyName("CN¥", "ru")).toBe("Китайский юань (CN¥)");
+    for (const choice of [...primaryCurrencies, ...otherCurrencies]) {
+      expect(choice.ru.trim().length).toBeGreaterThan(0);
+      expect(currencyName(choice.code, "ru")).toBe(choice.ru);
+    }
   });
 });

@@ -9,6 +9,8 @@ describe("preferences", () => {
     expect(parseTheme("dark")).toBe("dark");
     expect(parseLang(null)).toBe("en");
     expect(parseLang("he")).toBe("he");
+    expect(parseLang("ru")).toBe("ru");
+    expect(parseLang("RU")).toBe("ru");
     expect(parseLang("fr")).toBe("en");
   });
 

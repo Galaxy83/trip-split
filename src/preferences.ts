@@ -1,5 +1,5 @@
 export type ThemeChoice = "system" | "light" | "dark";
-export type Lang = "en" | "he";
+export type Lang = "en" | "he" | "ru";
 
 export const THEME_KEY = "trip-split:theme";
 export const LANG_KEY = "trip-split:lang";
@@ -9,7 +9,9 @@ export function parseTheme(value: string | null | undefined): ThemeChoice {
 }
 
 export function parseLang(value: string | null | undefined): Lang {
-  return value === "he" ? "he" : "en";
+  const token = value?.toLowerCase();
+  if (token === "he" || token === "ru") return token;
+  return "en";
 }
 
 export function resolvedTheme(choice: ThemeChoice, systemDark: boolean): "light" | "dark" {

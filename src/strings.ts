@@ -1,5 +1,5 @@
 /**
- * All user-visible copy lives here, in English and Hebrew.
+ * All user-visible copy lives here, in English, Hebrew, and Russian.
  * Sentence parts keep word order in data so each language can arrange names
  * and amounts naturally.
  */
@@ -12,6 +12,21 @@ export type SentencePart =
 
 export function sentenceText(parts: readonly SentencePart[]): string {
   return parts.map((part) => part.text).join("");
+}
+
+/**
+ * Russian cardinal form.
+ * one: 1, 21, 31… except 11
+ * few: 2–4, 22–24… except 12–14
+ * many: 0, 5–20, 11–14, 25–30…
+ */
+export function ruCardinal(count: number, one: string, few: string, many: string): string {
+  const n = Math.abs(Math.trunc(count));
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
+  return many;
 }
 
 export interface Copy {
@@ -82,6 +97,7 @@ export interface Copy {
   language: string;
   langEnglish: string;
   langHebrew: string;
+  langRussian: string;
   pays: (from: string, to: string, amount: string) => SentencePart[];
   youPay: (to: string, amount: string) => SentencePart[];
   youReceive: (from: string, amount: string) => SentencePart[];
@@ -116,7 +132,7 @@ const english: Copy = {
   entryMember: "Member",
   entryGroup: "Family/Group",
   weight: "Weight",
-  payingMembers: "Paying members",
+  payingMembers: "People sharing the cost",
   entryShare: "Share",
   memberColumn: "Member",
   spent: "Spent",
@@ -156,6 +172,7 @@ const english: Copy = {
   language: "Language",
   langEnglish: "English",
   langHebrew: "עברית",
+  langRussian: "Русский",
   pays: (from, to, amount) => [
     { type: "name", text: from },
     { type: "text", text: " pays " },
@@ -202,7 +219,7 @@ const hebrew: Copy = {
   entryMember: "חבר",
   entryGroup: "משפחה/קבוצה",
   weight: "משקל",
-  payingMembers: "מספר משלמים",
+  payingMembers: "האנשים שמחלקים את העלות",
   entryShare: "חלק",
   memberColumn: "חבר",
   spent: "שילם",
@@ -242,6 +259,7 @@ const hebrew: Copy = {
   language: "שפה",
   langEnglish: "English",
   langHebrew: "עברית",
+  langRussian: "Русский",
   pays: (from, to, amount) => [
     { type: "name", text: from },
     { type: "text", text: " מעביר ל" },
@@ -259,7 +277,94 @@ const hebrew: Copy = {
   ],
 };
 
-const catalogs: Record<Lang, Copy> = { en: english, he: hebrew };
+const russian: Copy = {
+  pageTitle: "Кто кому должен",
+  tagline: "Делим расходы поездки по числу людей.",
+  kicker: "Общая поездка",
+  members: "Участники",
+  memberName: "Имя",
+  memberPlaceholder: "Имя",
+  addMember: "Добавить участника",
+  remove: "Удалить",
+  removeMemberNamed: (name) => `Удалить ${name}`,
+  keepTwo: "Нужно оставить хотя бы двух участников",
+  expenses: "Расходы",
+  description: "Описание",
+  paidBy: "Кто заплатил",
+  amount: "Сумма",
+  expensePlaceholder: "Ужин, такси…",
+  amountPlaceholder: "0.00",
+  addExpense: "Добавить расход",
+  deleteExpense: "Удалить",
+  deleteExpenseNamed: (description) =>
+    description.trim() ? `Удалить ${description.trim()}` : "Удалить расход",
+  summary: "Итог",
+  totalSpent: "Всего потрачено",
+  fairShare: "Справедливая доля на человека",
+  each: "на человека",
+  entryType: "Тип",
+  entryMember: "Участник",
+  entryGroup: "Семья/группа",
+  weight: "Вес",
+  payingMembers: "Люди, которые делят стоимость",
+  entryShare: "Доля",
+  memberColumn: "Участник",
+  spent: "Потрачено",
+  balance: "Баланс",
+  balanceCaption: "Тип, вес, потраченная сумма, доля и баланс каждой записи",
+  settlement: "Кто кому платит",
+  minimize: "Сократить число переводов",
+  proportionalHint: "Каждый должник делит долг пропорционально тому, сколько причитается остальным.",
+  minimizeHint: "Самый большой долг гасится самым большим остатком, чтобы переводов было меньше.",
+  allSettled: "Никто никому не должен. Платежей нет.",
+  oneMember: "Один участник",
+  showFor: "Показать для",
+  nothingForMember: "Нечего платить или получать.",
+  balanceLine: (spent, share, balance) => `Потрачено ${spent} · Доля ${share} · Баланс ${balance}`,
+  share: "Поделиться",
+  linkCopied: "Ссылка скопирована",
+  copyFailed: "Не получилось скопировать. Выделите адрес и скопируйте его.",
+  copySettlement: "Копировать в WhatsApp",
+  settlementCopied: "Расчёт скопирован",
+  exportCsv: "Экспорт CSV",
+  reset: "Сбросить поездку",
+  resetAction: "Сбросить",
+  confirmReset: "Сбросить поездку на этом устройстве? Это нельзя отменить.",
+  confirmRemove: (name) => `Удалить ${name}? Расходы этой записи будут удалены.`,
+  cancel: "Отмена",
+  negativeAmount: "Сумма не может быть отрицательной.",
+  invalidAmount: "Введите число или оставьте поле пустым.",
+  currency: "Валюта",
+  memberFallback: (n) => `${ruCardinal(1, "Участник", "Участника", "Участников")} ${n}`,
+  footer: "Поездка сохранена на этом устройстве. Ссылка откроет её на этом языке.",
+  csvExpenseHeader: "Описание,Кто заплатил,Сумма",
+  csvBalanceHeader: "Участник,Тип,Вес,Потрачено,Доля,Баланс",
+  theme: "Тема",
+  themeSystem: "Система",
+  themeLight: "Светлая",
+  themeDark: "Тёмная",
+  language: "Язык",
+  langEnglish: "English",
+  langHebrew: "עברית",
+  langRussian: "Русский",
+  pays: (from, to, amount) => [
+    { type: "name", text: from },
+    { type: "text", text: " платит " },
+    { type: "name", text: to },
+    { type: "text", text: ` ${amount}` },
+  ],
+  youPay: (to, amount) => [
+    { type: "text", text: "Вы платите " },
+    { type: "name", text: to },
+    { type: "text", text: ` ${amount}` },
+  ],
+  youReceive: (from, amount) => [
+    { type: "name", text: from },
+    { type: "text", text: ` платит вам ${amount}` },
+  ],
+};
+
+const catalogs: Record<Lang, Copy> = { en: english, he: hebrew, ru: russian };
 
 export function copyFor(lang: Lang): Copy {
   return catalogs[lang];
