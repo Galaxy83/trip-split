@@ -488,6 +488,13 @@ button:disabled {
 .balance thead th:not(:first-child),
 .balance td {
   width: 1%;
+  padding-inline: 0.5rem;
+  border-inline-start: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+.balance thead th:nth-child(even),
+.balance tbody :nth-child(even) {
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
 }
 
 .balance thead th {
@@ -524,9 +531,11 @@ button:disabled {
   .balance { font-size: 0.8125rem; }
   .balance thead th { font-size: 0.68rem; }
   .balance th,
-  .balance td { padding: 0.4rem 0.12rem; }
+  .balance td { padding-block: 0.4rem; }
   .balance th[scope="row"],
-  .balance thead th:first-child { padding-inline-end: 0.35rem; }
+  .balance thead th:first-child { padding-inline: 0.08rem 0.28rem; }
+  .balance thead th:not(:first-child),
+  .balance td { padding-inline: 0.28rem; }
 }
 
 @media (max-width: 360px) {
@@ -534,9 +543,11 @@ button:disabled {
   .balance { font-size: 0.75rem; }
   .balance thead th { font-size: 0.62rem; }
   .balance th,
-  .balance td { padding: 0.32rem 0.05rem; }
+  .balance td { padding-block: 0.32rem; }
   .balance th[scope="row"],
-  .balance thead th:first-child { padding-inline-end: 0.28rem; }
+  .balance thead th:first-child { padding-inline: 0.04rem 0.2rem; }
+  .balance thead th:not(:first-child),
+  .balance td { padding-inline: 0.18rem; }
 }
 
 .pos { color: var(--good); font-weight: 600; }
