@@ -32,5 +32,12 @@ describe("formatMoney", () => {
     expect(formatSignedMoney(-474.25, "₪")).toBe("−₪474.25");
     expect(formatSignedMoney(2474.75, "₪")).toBe("+₪2,474.75");
     expect(formatSignedMoney(0, "₪")).toBe("₪0.00");
+    expect(formatMoney(1000.25, "ILS")).toBe("₪1,000.25");
+    expect(formatMoney(1000.25, "USD")).toBe("$1,000.25");
+    expect(formatMoney(1000.25, "$")).toBe("$1,000.25");
+    expect(formatMoney(1000.25, "CAD")).toBe("CA$1,000.25");
+    expect(formatMoney(1000.25, "CNY")).toBe("CN¥1,000.25");
+    expect(formatMoney(1000.25, "EUR")).toBe("€1,000.25");
+    expect(formatMoney(10, "xyz")).toBe("₪10.00");
   });
 });

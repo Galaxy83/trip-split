@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { formatMoney } from "./money";
 import { settle, type SpendRow, type Transfer } from "./settlement";
-import { copy, sentenceText } from "./strings";
+import { copyFor, sentenceText } from "./strings";
 
 const trip: SpendRow[] = [
   { id: "igor", name: "Igor", spent: 526 },
@@ -40,7 +40,7 @@ describe("settle", () => {
       "Sasha->Maxim:1000.25",
     ]);
 
-    const sentence = sentenceText(copy.pays("Sasha", "Maxim", formatMoney(1000.25, "₪")));
+    const sentence = sentenceText(copyFor("en").pays("Sasha", "Maxim", formatMoney(1000.25, "₪")));
     expect(sentence).toBe("Sasha pays Maxim ₪1,000.25");
   });
 
@@ -142,8 +142,68 @@ describe("settle", () => {
         amount: 50,
       },
     ]);
-    expect(sentenceText(copy.pays("סשה", "מקסים", formatMoney(50, "₪")))).toBe(
+    expect(sentenceText(copyFor("en").pays("סשה", "מקסים", formatMoney(50, "₪")))).toBe(
       "סשה pays מקסים ₪50.00",
     );
+  });
+
+  it("weights a family as several paying members and settles it as one entry", () => {
+    const result = settle([
+      { id: "cohen", name: "Cohen family", spent: 0, weight: 3 },
+      { id: "maxim", name: "Maxim", spent: 100, weight: 1 },
+    ]);
+
+    expect(result.totalWeight).toBe(4);
+    expect(result.share).toBe(25);
+    expect(result.balances.map((row) => [row.name, row.share, row.balance])).toEqual([
+      ["Cohen family", 75, -75],
+      ["Maxim", 25, 75],
+    ]);
+    expect(result.balances.reduce((sum, row) => sum + row.balance, 0)).toBe(0);
+    expect(lines(result.transfers)).toEqual(["Cohen family->Maxim:75.00"]);
+    expect(sentenceText(copyFor("en").pays("Cohen family", "Maxim", formatMoney(75, "ILS")))).toBe(
+      "Cohen family pays Maxim ₪75.00",
+    );
+  });
+
+  it("rounds weighted payments to the cent and keeps balances summing to zero", () => {
+    const result = settle([
+      { id: "a", name: "A", spent: 6, weight: 1 },
+      { id: "b", name: "B", spent: 4, weight: 1 },
+      { id: "c", name: "Cohen family", spent: 0, weight: 3 },
+      { id: "d", name: "D", spent: 0, weight: 1 },
+    ]);
+
+    expect(result.totalWeight).toBe(6);
+    expect(cents(result.share)).toBe(167);
+    expect(result.balances.reduce((sum, row) => sum + row.balance, 0)).toBeCloseTo(0, 8);
+    expect(lines(result.transfers)).toEqual([
+      "Cohen family->A:3.25",
+      "Cohen family->B:1.75",
+      "D->A:1.09",
+      "D->B:0.58",
+    ]);
+    for (const transfer of result.transfers) {
+      expect(cents(transfer.amount)).toBe(Math.round(transfer.amount * 100));
+    }
+    const paidByCohen = result.transfers
+      .filter((transfer) => transfer.fromName === "Cohen family")
+      .reduce((sum, transfer) => sum + cents(transfer.amount), 0);
+    expect(paidByCohen).toBe(500);
+
+    const minimized = settle(
+      [
+        { id: "a", name: "A", spent: 6, weight: 1 },
+        { id: "b", name: "B", spent: 4, weight: 1 },
+        { id: "c", name: "Cohen family", spent: 0, weight: 3 },
+        { id: "d", name: "D", spent: 0, weight: 1 },
+      ],
+      "minimize",
+    );
+    expect(lines(minimized.transfers)).toEqual([
+      "Cohen family->A:4.34",
+      "D->B:1.67",
+      "Cohen family->B:0.66",
+    ]);
   });
 });

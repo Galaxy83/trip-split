@@ -3,7 +3,7 @@ import { decodeTrip, encodeTrip, tripFromHash } from "./codec";
 import type { TripState } from "./model";
 
 const trip: TripState = {
-  currency: "₪",
+  currency: "ILS",
   minimize: false,
   focusId: "a",
   players: [
@@ -28,6 +28,11 @@ describe("share codec", () => {
     const json = new TextDecoder().decode(bytes);
     expect(json).toContain('"players"');
     expect(json).not.toContain('"members"');
+    const saved = JSON.parse(json) as Record<string, unknown>;
+    // Language is the ?lang= query on the share URL, not a field in this payload.
+    expect(saved).not.toHaveProperty("lang");
+    expect(saved).not.toHaveProperty("language");
+    expect(saved).not.toHaveProperty("theme");
 
     const legacy = decodeTrip(encoded);
     expect(legacy?.players.map((person) => person.name)).toEqual(["אנדריי", "Sasha 🚌"]);
