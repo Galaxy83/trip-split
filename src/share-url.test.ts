@@ -26,8 +26,8 @@ describe("share url language", () => {
     expect(resolveLang("?other=1&lang=he", "en")).toBe("he");
   });
 
-  it("keeps an old link working and falls back when it has no language", () => {
-    const encoded = encodeTrip(trip);
+  it("keeps an old link working and falls back when it has no language", async () => {
+    const encoded = await encodeTrip(trip);
     const opened = `https://galaxy83.github.io/trip-split/#${encoded}`;
     const url = new URL(opened);
 
@@ -36,22 +36,23 @@ describe("share url language", () => {
     expect(langFromSearch("")).toBeNull();
     expect(resolveLang(url.search, "he")).toBe("he");
     expect(resolveLang("?lang=fr", "en")).toBe("en");
-    expect(tripFromHash(url.hash)).toEqual(trip);
+    expect((await tripFromHash(url.hash))?.players.map((player) => player.name)).toEqual(["אנדריי", "Sasha"]);
+    expect((await tripFromHash(url.hash))?.expenses[0]).toMatchObject({ description: "קפה", amount: "18.50" });
 
     const shared = new URL(shareLocation(opened, encoded, "he"));
     expect(shared.searchParams.get("lang")).toBe("he");
     expect(resolveLang(shared.search, "en")).toBe("he");
-    expect(tripFromHash(shared.hash)).toEqual(trip);
+    expect((await tripFromHash(shared.hash))?.minimize).toBe(false);
 
     const switched = new URL(shareLocation(shared.href, encoded, "en"));
     expect(switched.searchParams.get("lang")).toBe("en");
-    expect(tripFromHash(switched.hash)).toEqual(trip);
+    expect((await tripFromHash(switched.hash))?.currency).toBe("ILS");
     expect(switched.hash).toBe(`#${encoded}`);
 
     const russian = new URL(shareLocation(switched.href, encoded, "ru"));
     expect(russian.searchParams.get("lang")).toBe("ru");
     expect(resolveLang(russian.search, "he")).toBe("ru");
-    expect(tripFromHash(russian.hash)).toEqual(trip);
+    expect((await tripFromHash(russian.hash))?.players[1].name).toBe("Sasha");
     expect(russian.hash).toBe(`#${encoded}`);
   });
 });

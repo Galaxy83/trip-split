@@ -2,7 +2,7 @@
 
 Who owes whom for a group trip. Add people, add what they paid, and the page splits the total by how many people are paying, then lists who pays whom.
 
-No accounts. The trip is saved in this browser. **Share** copies a link with the trip in the URL so someone else can open the same numbers. Text fields use `dir="auto"`, so Hebrew names still display correctly.
+No accounts. The trip is saved in this browser. **Share** copies a link with the trip in a short hash so someone else can open the same numbers. Older, longer links still open. Text fields use `dir="auto"`, so Hebrew names still display correctly.
 
 Live site: https://galaxy83.github.io/trip-split/
 
