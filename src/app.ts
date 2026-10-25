@@ -1,5 +1,11 @@
 import { encodeTrip, tripFromHash } from "./codec";
-import { currencyName, otherCurrencies, primaryCurrencies, resolveCurrency } from "./currencies";
+import {
+  currencyName,
+  currencyShortLabel,
+  otherCurrencies,
+  primaryCurrencies,
+  resolveCurrency,
+} from "./currencies";
 import { langFromSearch, resolveLang, shareLocation } from "./share-url";
 import { amountProblem, csvCell, formatMoney, formatSignedMoney, parseAmount } from "./money";
 import {
@@ -55,6 +61,7 @@ export function mount(root: HTMLElement): void {
   let summaryBody: HTMLDivElement;
   let toast: HTMLParagraphElement;
   let currencySelect: HTMLSelectElement;
+  let currencyFace: HTMLElement;
   let dialog: HTMLDialogElement;
   let confirmText: HTMLParagraphElement;
   let cancelBtn: HTMLButtonElement;
@@ -86,6 +93,14 @@ export function mount(root: HTMLElement): void {
 
     currencySelect = h("select", { id: "currency" });
     fillCurrencySelect(currencySelect, state.currency);
+    bindCurrencyMenu(currencySelect);
+    currencyFace = h(
+      "span",
+      { class: "currency-face", dir: "ltr", "aria-hidden": "true" },
+      currencyShortLabel(state.currency),
+    );
+    const currencyControl = h("span", { class: "currency-control" });
+    currencyControl.append(currencySelect, currencyFace);
 
     dialog = h("dialog");
     confirmText = h("p", { dir: "auto" });
@@ -98,10 +113,11 @@ export function mount(root: HTMLElement): void {
     });
     dialog.append(confirmText, h("div", { class: "dialog-actions" }, cancelBtn, okBtn));
 
-    const currencyLabel = h("label", { class: "currency" });
-    currencyLabel.append(t().currency, currencySelect);
+    const currencyLabel = h("label", { class: "currency-label", for: "currency" }, t().currency);
     const shareButton = () =>
       h("button", { type: "button", class: "primary", "data-action": "share" }, t().share);
+    const topShare = shareButton();
+    topShare.classList.add("share-beside");
 
     root.replaceChildren(
       appBar(theme),
@@ -114,7 +130,7 @@ export function mount(root: HTMLElement): void {
           h("p", { class: "kicker" }, t().kicker),
           h("h1", null, t().pageTitle),
           h("p", { class: "tagline" }, t().tagline),
-          h("div", { class: "top-actions" }, currencyLabel, shareButton()),
+          h("div", { class: "top-actions" }, currencyLabel, currencyControl, topShare),
         ),
         h(
           "section",
@@ -232,6 +248,8 @@ export function mount(root: HTMLElement): void {
       const next = resolveCurrency(target.value);
       if (state.currency === next) return;
       state.currency = next;
+      currencyFace.textContent = currencyShortLabel(next);
+      currencySelect.title = currencyName(next, uiLang);
       persist();
       renderSummary();
       return;
@@ -376,6 +394,8 @@ export function mount(root: HTMLElement): void {
     if (!ok) return;
     state = createDefaultTrip();
     fillCurrencySelect(currencySelect, state.currency);
+    currencyFace.textContent = currencyShortLabel(state.currency);
+    currencySelect.title = currencyName(state.currency, uiLang);
     persist();
     renderPlayers();
     renderExpenses();
@@ -736,6 +756,9 @@ function settlementBlock(result: Settlement, currency: string, minimize: boolean
   );
 }
 
+/** Stays open while the summary re-renders. A fresh visit starts collapsed. */
+let breakdownOpen = false;
+
 function personalBlock(result: Settlement, currency: string, state: TripState): HTMLElement {
   const select = h("select", { id: "focus-player" });
   for (const [index, player] of state.players.entries()) {
@@ -747,8 +770,12 @@ function personalBlock(result: Settlement, currency: string, state: TripState): 
   label.append(h("span", { class: "label" }, t().showFor), select);
 
   const focus = result.balances.find((row) => row.id === state.focusId) ?? result.balances[0];
-  const block = h("div");
-  block.append(h("h3", null, t().oneMember), label);
+  const block = h("details", { class: "breakdown" });
+  if (breakdownOpen) block.open = true;
+  block.addEventListener("toggle", () => {
+    breakdownOpen = block.open;
+  });
+  block.append(h("summary", null, t().breakdown), label);
   if (!focus) return block;
 
   block.append(
@@ -880,6 +907,19 @@ function fillCurrencySelect(select: HTMLSelectElement, code: string): void {
   for (const choice of otherCurrencies) options.push(currencyOption(choice.code, resolved));
   select.replaceChildren(...options);
   select.value = resolved;
+  select.title = currencyName(resolved, uiLang);
+}
+
+/** Widen the native menu while it is open so the full currency names stay visible. */
+function bindCurrencyMenu(select: HTMLSelectElement): void {
+  const open = () => select.classList.add("is-open");
+  select.addEventListener("pointerdown", open);
+  select.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp" || event.key === "Enter" || event.key === " ") {
+      open();
+    }
+  });
+  select.addEventListener("blur", () => select.classList.remove("is-open"));
 }
 
 function currencyOption(code: string, selected: string): HTMLOptionElement {

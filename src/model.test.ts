@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { entryType, entryWeight, normalizeTrip, playerSpends, type Expense, type Player } from "./model";
+import {
+  createDefaultTrip,
+  entryType,
+  entryWeight,
+  normalizeTrip,
+  playerSpends,
+  type Expense,
+  type Player,
+} from "./model";
 
 const players: Player[] = [
   { id: "igor", name: "Igor" },
@@ -59,6 +67,7 @@ describe("normalizeTrip", () => {
     expect(trip?.expenses[0].description).toBe("מונית");
     expect(trip?.minimize).toBe(true);
     expect(trip?.focusId).toBe("s");
+    expect(createDefaultTrip().minimize).toBe(true);
     expect(normalizeTrip({ nope: true })).toBeNull();
     expect(normalizeTrip(null)).toBeNull();
   });
@@ -81,6 +90,7 @@ describe("normalizeTrip", () => {
     });
     expect(trip?.players).toHaveLength(2);
     expect(trip?.players[0].name).toBe("Igor");
+    expect(trip?.minimize).toBe(true);
     expect(trip?.currency).toBe("ILS");
     expect(entryType(trip!.players[0])).toBe("member");
     expect(entryWeight(trip!.players[0])).toBe(1);
@@ -124,5 +134,18 @@ describe("normalizeTrip", () => {
         expenses: [],
       })?.players[0].weight,
     ).toBe(2);
+  });
+
+  it("turns minimize on unless the trip explicitly saved it off", () => {
+    const people = {
+      players: [
+        { id: "a", name: "A" },
+        { id: "b", name: "B" },
+      ],
+      expenses: [],
+    };
+    expect(normalizeTrip(people)?.minimize).toBe(true);
+    expect(normalizeTrip({ ...people, minimize: true })?.minimize).toBe(true);
+    expect(normalizeTrip({ ...people, minimize: false })?.minimize).toBe(false);
   });
 });

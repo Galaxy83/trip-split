@@ -37,6 +37,9 @@ describe("copy", () => {
     expect(copyFor("ru").keepTwo).toBe("Нужно оставить хотя бы двух участников");
     expect(copyFor("ru").payingMembers).toBe("Люди, которые делят стоимость");
     expect(copyFor("ru").langRussian).toBe("Русский");
+    expect(copyFor("en").breakdown).toBe("Breakdown per member");
+    expect(copyFor("he").breakdown).toBe("פירוט לפי חבר");
+    expect(copyFor("ru").breakdown).toBe("Разбивка по участникам");
   });
 
   it("uses Russian plural forms for counts", () => {

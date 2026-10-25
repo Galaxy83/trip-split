@@ -113,3 +113,25 @@ export function currencyName(code: string, lang: Lang): string {
   if (lang === "ru") return choice.ru;
   return choice.en;
 }
+
+/** Symbol used in amounts, or the ISO code when the runtime has no distinct symbol. */
+export function currencySymbol(code: string): string {
+  const resolved = resolveCurrency(code);
+  try {
+    const parts = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: resolved,
+      currencyDisplay: "symbol",
+    }).formatToParts(0);
+    return parts.find((part) => part.type === "currency")?.value ?? resolved;
+  } catch {
+    return resolved;
+  }
+}
+
+/** Closed currency control: the ISO code, plus the symbol when it adds something. */
+export function currencyShortLabel(code: string): string {
+  const resolved = resolveCurrency(code);
+  const symbol = currencySymbol(resolved);
+  return symbol === resolved ? resolved : `${resolved} ${symbol}`;
+}
