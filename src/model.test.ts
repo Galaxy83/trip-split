@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeTrip, playerSpends, type Expense, type Player } from "./model";
+import { entryType, entryWeight, normalizeTrip, playerSpends, type Expense, type Player } from "./model";
 
 const players: Player[] = [
   { id: "igor", name: "Igor" },
@@ -18,7 +18,7 @@ function expense(partial: Partial<Expense> & Pick<Expense, "paidBy" | "amount">)
 }
 
 describe("playerSpends", () => {
-  it("ignores blank and invalid amounts and still counts a player who spent nothing", () => {
+  it("ignores blank and invalid amounts and still counts a member who spent nothing", () => {
     const spends = playerSpends(players, [
       expense({ paidBy: "igor", amount: "526" }),
       expense({ paidBy: "maxim", amount: "1,000.25" }),
@@ -31,8 +31,14 @@ describe("playerSpends", () => {
     expect(spends.map((row) => [row.name, row.spent])).toEqual([
       ["Igor", 526],
       ["Maxim", 1000.25],
-      ["Player 3", 10.5],
-      ["Player 4", 0],
+      ["Member 3", 10.5],
+      ["Member 4", 0],
+    ]);
+    expect(playerSpends(players, [], "he").map((row) => row.name)).toEqual([
+      "Igor",
+      "Maxim",
+      "חבר 3",
+      "חבר 4",
     ]);
   });
 });
@@ -57,13 +63,66 @@ describe("normalizeTrip", () => {
     expect(normalizeTrip(null)).toBeNull();
   });
 
-  it("pads a single player up to the minimum of two", () => {
+  it("accepts a payload that says members instead of players", () => {
+    const trip = normalizeTrip({
+      members: [
+        { id: "s", name: "סשה" },
+        { id: "m", name: "מקסים" },
+      ],
+      expenses: [],
+    });
+    expect(trip?.players.map((person) => person.name)).toEqual(["סשה", "מקסים"]);
+  });
+
+  it("pads a single member up to the minimum of two", () => {
     const trip = normalizeTrip({
       players: [{ id: "only", name: "Igor" }],
       expenses: [],
     });
     expect(trip?.players).toHaveLength(2);
     expect(trip?.players[0].name).toBe("Igor");
-    expect(trip?.currency).toBe("₪");
+    expect(trip?.currency).toBe("ILS");
+    expect(entryType(trip!.players[0])).toBe("member");
+    expect(entryWeight(trip!.players[0])).toBe(1);
+  });
+
+  it("keeps an old shekel symbol and treats missing types as members of weight 1", () => {
+    const legacy = normalizeTrip({
+      currency: "₪",
+      players: [
+        { id: "a", name: "Cohen family" },
+        { id: "b", name: "Maxim" },
+      ],
+      expenses: [],
+    });
+    expect(legacy?.currency).toBe("ILS");
+    expect(legacy?.players.every((player) => entryType(player) === "member" && entryWeight(player) === 1)).toBe(
+      true,
+    );
+
+    const weighted = normalizeTrip({
+      currency: "€",
+      players: [
+        { id: "a", name: "Cohen family", type: "family", weight: 3 },
+        { id: "b", name: "Maxim" },
+      ],
+      expenses: [],
+    });
+    expect(weighted?.currency).toBe("EUR");
+    expect(weighted?.players[0]).toMatchObject({ type: "group", weight: 3 });
+    expect(entryWeight(weighted!.players[1])).toBe(1);
+    expect(normalizeTrip({ currency: "xyz", players: [{ id: "a", name: "A" }, { id: "b", name: "B" }], expenses: [] })?.currency).toBe(
+      "ILS",
+    );
+    expect(
+      normalizeTrip({
+        currency: "CA$",
+        players: [
+          { id: "a", name: "A", type: "group" },
+          { id: "b", name: "B" },
+        ],
+        expenses: [],
+      })?.players[0].weight,
+    ).toBe(2);
   });
 });

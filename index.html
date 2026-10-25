@@ -11,9 +11,35 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,650&family=Outfit:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,650&family=Noto+Sans+Hebrew:wght@400;500;600&family=Outfit:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var theme = "system";
+        var lang = "en";
+        var urlLang = "";
+        try {
+          urlLang = (new URLSearchParams(location.search).get("lang") || "").toLowerCase();
+        } catch (e) {}
+        if (urlLang === "en" || urlLang === "he") lang = urlLang;
+        try {
+          var storedTheme = localStorage.getItem("trip-split:theme");
+          if (storedTheme === "light" || storedTheme === "dark" || storedTheme === "system") theme = storedTheme;
+          if (urlLang !== "en" && urlLang !== "he" && localStorage.getItem("trip-split:lang") === "he") lang = "he";
+        } catch (e) {}
+        var systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var dark = theme === "dark" || (theme === "system" && systemDark);
+        root.dataset.theme = theme;
+        root.dataset.resolved = dark ? "dark" : "light";
+        root.style.colorScheme = dark ? "dark" : "light";
+        if (lang === "he") {
+          root.lang = "he";
+          root.dir = "rtl";
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

@@ -1,6 +1,6 @@
 # trip-split
 
-Who owes whom for a group trip. Add people, add what they paid, and the page splits the total evenly and lists who pays whom.
+Who owes whom for a group trip. Add people, add what they paid, and the page splits the total by how many people are paying, then lists who pays whom.
 
 No accounts. The trip is saved in this browser. **Share** copies a link with the trip in the URL so someone else can open the same numbers. Text fields use `dir="auto"`, so Hebrew names still display correctly.
 
@@ -8,18 +8,33 @@ Live site: https://galaxy83.github.io/trip-split/
 
 ## Use
 
-1. Add at least two players.
+1. Add at least two members.
 2. Add expenses: a description, who paid, and the amount.
 3. Read the summary. It updates as you type.
 4. **Share**, or **Copy for WhatsApp**, to send the result.
 
-Amounts use two decimal places. The currency symbol defaults to ₪. Blank and invalid rows are ignored. Negative amounts are rejected.
+A **Member** counts as one person. **Family/Group** asks how many paying members it has (the weight, at least 1, default 2) and is settled as one entry: “Cohen family pays Maxim”. Fair share per member is the total divided by the sum of the weights. Each entry’s share is that amount times its weight. An older share link treats every entry as a member of weight 1.
+
+Amounts use two decimal places. The currency dropdown defaults to the Israeli shekel. Older links that stored a symbol such as ₪, €, or $ still open on the matching currency, or on the shekel when the symbol is unknown. Blank and invalid rows are ignored. Negative amounts are rejected.
 
 **Minimize number of payments** matches the largest debt to the largest credit. The default splits each payer in proportion to what each person is owed.
 
 **Reset trip** clears this browser. **Export CSV** downloads the expenses and balances. Opening a share link replaces the trip saved on that device. Reload keeps the trip.
 
-UI copy is English and lives in `src/strings.ts`.
+The theme follows this device until you choose Light or Dark. That choice stays on this device and is not part of the share link. English is the default; switch to עברית for Hebrew, laid out right to left. The language is saved on this device and written into the share link (`?lang=en` or `?lang=he`), so the recipient opens the trip in the sender's language. Switching language updates the link. An older link with no language uses the language saved on that device, or English.
+
+## עברית
+
+העמוד באנגלית כברירת מחדל. אפשר לעבור לעברית, והפריסה תהיה מימין לשמאל. ערכת הנושא עוקבת אחרי המכשיר עד שבוחרים בהיר או כהה, והבחירה נשמרת במכשיר ולא נכללת בקישור. השפה נשמרת במכשיר וגם נכתבת בקישור השיתוף, כדי שמי שפותח אותו יראה את השפה של מי ששלח. החלפת שפה מעדכנת את הקישור. קישור ישן בלי שפה נפתח לפי השפה השמורה במכשיר, או באנגלית.
+
+1. הוסיפו לפחות שני חברים.
+2. הוסיפו הוצאות: תיאור, מי שילם, וסכום.
+אפשר לסמן רשומה כחבר, או כמשפחה/קבוצה עם מספר משלמים. החלק ההוגן לכל חבר הוא הסכום חלקי סך המשקלות. קישור ישן נפתח כשכל הרשומות הן חברים במשקל 1. המטבע הוא רשימה, וברירת המחדל היא שקל.
+
+3. הסיכום מתעדכן תוך כדי הקלדה, כולל החלק ההוגן לכל חבר.
+4. **שיתוף** מעתיק קישור. **העתקה לוואטסאפ** מעתיקה את מי משלם למי.
+
+English and Hebrew copy live in `src/strings.ts`.
 
 ## Develop
 

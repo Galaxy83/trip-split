@@ -1,3 +1,5 @@
+import { resolveCurrency } from "./currencies";
+
 /** Parse a typed amount. Empty and invalid rows are ignored. Negatives are rejected. */
 export function parseAmount(raw: string): number | null {
   const trimmed = raw.trim();
@@ -31,12 +33,13 @@ export function amountProblem(raw: string): "negative" | "invalid" | null {
 
 export function formatMoney(amount: number, currency: string): string {
   const formatted = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: resolveCurrency(currency),
+    currencyDisplay: "symbol",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(Math.abs(amount));
-  const symbol = currency.trim() || "₪";
-  const body = symbol.length > 1 ? `${symbol}\u00a0${formatted}` : `${symbol}${formatted}`;
-  return amount < -1e-9 ? `−${body}` : body;
+  return amount < -1e-9 ? `−${formatted}` : formatted;
 }
 
 export function formatSignedMoney(amount: number, currency: string): string {
