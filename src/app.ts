@@ -76,9 +76,9 @@ export function mount(root: HTMLElement): void {
       h(
         "section",
         { class: "card", "aria-labelledby": "players-heading" },
-        h("h2", { id: "players-heading" }, copy.players),
+        h("h2", { id: "players-heading" }, copy.members),
         playerList,
-        h("button", { type: "button", id: "add-player", class: "add" }, copy.addPlayer),
+        h("button", { type: "button", id: "add-player", class: "add" }, copy.addMember),
       ),
       h(
         "section",
@@ -156,7 +156,7 @@ export function mount(root: HTMLElement): void {
       );
       if (button) {
         const label =
-          state.players.length > 2 ? copy.removePlayerNamed(displayName(player.name, index)) : copy.keepTwo;
+          state.players.length > 2 ? copy.removeMemberNamed(displayName(player.name, index)) : copy.keepTwo;
         button.setAttribute("aria-label", label);
         button.title = label;
       }
@@ -465,8 +465,8 @@ export function mount(root: HTMLElement): void {
     const input = h("input", {
       type: "text",
       dir: "auto",
-      placeholder: copy.playerPlaceholder,
-      "aria-label": copy.playerName,
+      placeholder: copy.memberPlaceholder,
+      "aria-label": copy.memberName,
       "data-player-id": player.id,
       autocomplete: "off",
       autocapitalize: "off",
@@ -474,7 +474,7 @@ export function mount(root: HTMLElement): void {
       enterkeyhint: "done",
     });
     input.value = player.name;
-    const label = canRemove ? copy.removePlayerNamed(name) : copy.keepTwo;
+    const label = canRemove ? copy.removeMemberNamed(name) : copy.keepTwo;
     const remove = h(
       "button",
       {
@@ -596,7 +596,7 @@ function personalBlock(result: Settlement, currency: string, state: TripState): 
 
   const focus = result.balances.find((row) => row.id === state.focusId) ?? result.balances[0];
   const block = h("div");
-  block.append(h("h3", null, copy.onePlayer), label);
+  block.append(h("h3", null, copy.oneMember), label);
   if (!focus) return block;
 
   block.append(
@@ -616,7 +616,7 @@ function personalBlock(result: Settlement, currency: string, state: TripState): 
     (transfer) => transfer.fromId === focus.id || transfer.toId === focus.id,
   );
   if (mine.length === 0) {
-    list.append(h("li", null, h("p", null, copy.nothingForPlayer)));
+    list.append(h("li", null, h("p", null, copy.nothingForMember)));
   } else {
     for (const transfer of mine) {
       const parts =
@@ -652,7 +652,7 @@ function stats(result: Settlement, currency: string): HTMLElement {
 
 function balanceTable(result: Settlement, currency: string): HTMLElement {
   const head = h("tr");
-  for (const label of [copy.playerColumn, copy.spent, copy.fairShare, copy.balance]) {
+  for (const label of [copy.memberColumn, copy.spent, copy.fairShare, copy.balance]) {
     head.append(h("th", { scope: "col" }, label));
   }
   const body = h("tbody");

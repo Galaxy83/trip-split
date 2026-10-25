@@ -18,7 +18,7 @@ function expense(partial: Partial<Expense> & Pick<Expense, "paidBy" | "amount">)
 }
 
 describe("playerSpends", () => {
-  it("ignores blank and invalid amounts and still counts a player who spent nothing", () => {
+  it("ignores blank and invalid amounts and still counts a member who spent nothing", () => {
     const spends = playerSpends(players, [
       expense({ paidBy: "igor", amount: "526" }),
       expense({ paidBy: "maxim", amount: "1,000.25" }),
@@ -31,8 +31,8 @@ describe("playerSpends", () => {
     expect(spends.map((row) => [row.name, row.spent])).toEqual([
       ["Igor", 526],
       ["Maxim", 1000.25],
-      ["Player 3", 10.5],
-      ["Player 4", 0],
+      ["Member 3", 10.5],
+      ["Member 4", 0],
     ]);
   });
 });
@@ -57,7 +57,18 @@ describe("normalizeTrip", () => {
     expect(normalizeTrip(null)).toBeNull();
   });
 
-  it("pads a single player up to the minimum of two", () => {
+  it("accepts a payload that says members instead of players", () => {
+    const trip = normalizeTrip({
+      members: [
+        { id: "s", name: "סשה" },
+        { id: "m", name: "מקסים" },
+      ],
+      expenses: [],
+    });
+    expect(trip?.players.map((person) => person.name)).toEqual(["סשה", "מקסים"]);
+  });
+
+  it("pads a single member up to the minimum of two", () => {
     const trip = normalizeTrip({
       players: [{ id: "only", name: "Igor" }],
       expenses: [],

@@ -8,7 +8,7 @@ Live site: https://galaxy83.github.io/trip-split/
 
 ## Use
 
-1. Add at least two players.
+1. Add at least two members.
 2. Add expenses: a description, who paid, and the amount.
 3. Read the summary. It updates as you type.
 4. **Share**, or **Copy for WhatsApp**, to send the result.

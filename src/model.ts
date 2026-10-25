@@ -16,6 +16,11 @@ export interface Expense {
 
 export interface TripState {
   currency: string;
+  /**
+   * Share links encode this array under the key `players`.
+   * Keep that key so links created before the member rename still load.
+   * `normalizeTrip` also accepts `members` if it shows up in a payload.
+   */
   players: Player[];
   expenses: Expense[];
   minimize: boolean;
@@ -26,7 +31,7 @@ const STORAGE_KEY = "trip-split:v1";
 
 export function displayName(name: string, index: number): string {
   const trimmed = name.trim();
-  return trimmed.length > 0 ? trimmed : copy.playerFallback(index + 1);
+  return trimmed.length > 0 ? trimmed : copy.memberFallback(index + 1);
 }
 
 export function createDefaultTrip(): TripState {
@@ -66,11 +71,16 @@ export function playerSpends(players: readonly Player[], expenses: readonly Expe
 export function normalizeTrip(data: unknown): TripState | null {
   if (!data || typeof data !== "object") return null;
   const record = data as Record<string, unknown>;
-  if (!Array.isArray(record.players)) return null;
+  const rawPeople = Array.isArray(record.players)
+    ? record.players
+    : Array.isArray(record.members)
+      ? record.members
+      : null;
+  if (!rawPeople) return null;
 
   const players: Player[] = [];
   const seen = new Set<string>();
-  for (const entry of record.players) {
+  for (const entry of rawPeople) {
     if (players.length >= 50) break;
     if (!entry || typeof entry !== "object") continue;
     const item = entry as Record<string, unknown>;

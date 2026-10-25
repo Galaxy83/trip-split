@@ -21,6 +21,24 @@ describe("share codec", () => {
     expect(tripFromHash(`#${encodeURIComponent(encoded)}`)).toEqual(trip);
   });
 
+  it("keeps the players key so older share links still load", () => {
+    const encoded = encodeTrip(trip);
+    const binary = atob(encoded);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    const json = new TextDecoder().decode(bytes);
+    expect(json).toContain('"players"');
+    expect(json).not.toContain('"members"');
+
+    const legacy = decodeTrip(encoded);
+    expect(legacy?.players.map((person) => person.name)).toEqual(["אנדריי", "Sasha 🚌"]);
+
+    const withMembersKey = json.replace('"players"', '"members"');
+    let renamed = "";
+    const renamedBytes = new TextEncoder().encode(withMembersKey);
+    for (const byte of renamedBytes) renamed += String.fromCharCode(byte);
+    expect(decodeTrip(btoa(renamed))?.players[0].name).toBe("אנדריי");
+  });
+
   it("rejects a broken hash", () => {
     expect(tripFromHash("")).toBeNull();
     expect(tripFromHash("#")).toBeNull();
