@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_CURRENCY,
   currencyName,
+  currencyShortLabel,
   otherCurrencies,
   primaryCurrencies,
   resolveCurrency,
@@ -72,6 +73,21 @@ describe("currencies", () => {
     for (const choice of [...primaryCurrencies, ...otherCurrencies]) {
       expect(choice.ru.trim().length).toBeGreaterThan(0);
       expect(currencyName(choice.code, "ru")).toBe(choice.ru);
+    }
+  });
+
+  it("uses a short code and symbol for the closed currency select", () => {
+    expect(currencyShortLabel("ILS")).toBe("ILS ₪");
+    expect(currencyShortLabel("₪")).toBe("ILS ₪");
+    expect(currencyShortLabel("€")).toBe("EUR €");
+    expect(currencyShortLabel("CAD")).toBe("CAD CA$");
+    expect(currencyShortLabel("CN¥")).toBe("CNY CN¥");
+    expect(currencyShortLabel("CHF")).toBe("CHF");
+    expect(currencyShortLabel("nope")).toBe("ILS ₪");
+    for (const choice of [...primaryCurrencies, ...otherCurrencies]) {
+      const label = currencyShortLabel(choice.code);
+      expect(label.startsWith(choice.code)).toBe(true);
+      expect(label.length).toBeLessThanOrEqual(10);
     }
   });
 });

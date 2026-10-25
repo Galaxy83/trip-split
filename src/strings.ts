@@ -68,7 +68,7 @@ export interface Copy {
   proportionalHint: string;
   minimizeHint: string;
   allSettled: string;
-  oneMember: string;
+  breakdown: string;
   showFor: string;
   nothingForMember: string;
   balanceLine: (spent: string, share: string, balance: string) => string;
@@ -143,7 +143,7 @@ const english: Copy = {
   proportionalHint: "Each payer splits what they owe in proportion to what each person is owed.",
   minimizeHint: "Match the largest debt to the largest credit, so there are fewer transfers.",
   allSettled: "Everyone is even. No payments.",
-  oneMember: "One member",
+  breakdown: "Breakdown per member",
   showFor: "Show for",
   nothingForMember: "Nothing to pay or receive.",
   balanceLine: (spent, share, balance) => `Spent ${spent} · Share ${share} · Balance ${balance}`,
@@ -230,7 +230,7 @@ const hebrew: Copy = {
   proportionalHint: "כל מי שחייב מחלק את הסכום לפי מה שמגיע לכל אחד.",
   minimizeHint: "החוב הגדול ביותר מותאם לזכות הגדולה ביותר, כדי שיהיו פחות העברות.",
   allSettled: "הכול מאוזן. אין תשלומים.",
-  oneMember: "חבר אחד",
+  breakdown: "פירוט לפי חבר",
   showFor: "הצגה עבור",
   nothingForMember: "אין מה לשלם או לקבל.",
   balanceLine: (spent, share, balance) => `שילם ${spent} · חלק ${share} · יתרה ${balance}`,
@@ -317,7 +317,7 @@ const russian: Copy = {
   proportionalHint: "Каждый должник делит долг пропорционально тому, сколько причитается остальным.",
   minimizeHint: "Самый большой долг гасится самым большим остатком, чтобы переводов было меньше.",
   allSettled: "Никто никому не должен. Платежей нет.",
-  oneMember: "Один участник",
+  breakdown: "Разбивка по участникам",
   showFor: "Показать для",
   nothingForMember: "Нечего платить или получать.",
   balanceLine: (spent, share, balance) => `Потрачено ${spent} · Доля ${share} · Баланс ${balance}`,

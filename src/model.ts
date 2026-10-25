@@ -77,7 +77,7 @@ export function createDefaultTrip(): TripState {
     expenses: [
       { id: crypto.randomUUID(), description: "", paidBy: first, amount: "" },
     ],
-    minimize: false,
+    minimize: true,
     focusId: first,
   };
 }
@@ -173,7 +173,7 @@ export function normalizeTrip(data: unknown): TripState | null {
     currency,
     players,
     expenses,
-    minimize: record.minimize === true,
+    minimize: record.minimize !== false,
     focusId,
   };
 }

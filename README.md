@@ -17,7 +17,7 @@ A **Member** counts as one person. **Family/Group** asks how many people are sha
 
 Amounts use two decimal places. The currency dropdown defaults to the Israeli shekel. Older links that stored a symbol such as ₪, €, or $ still open on the matching currency, or on the shekel when the symbol is unknown. Blank and invalid rows are ignored. Negative amounts are rejected.
 
-**Minimize number of payments** matches the largest debt to the largest credit. The default splits each payer in proportion to what each person is owed.
+**Minimize number of payments** is on for a new trip: it matches the largest debt to the largest credit. Turn it off to split each payer in proportion to what each person is owed. An older trip or share link that never stored this choice opens with it on. One that saved it off stays off.
 
 **Reset trip** clears this browser. **Export CSV** downloads the expenses and balances. Opening a share link replaces the trip saved on that device. Reload keeps the trip.
 

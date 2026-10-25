@@ -44,6 +44,20 @@ describe("share codec", () => {
     expect(decodeTrip(btoa(renamed))?.players[0].name).toBe("אנדריי");
   });
 
+  it("opens an older payload with minimize on unless that payload saved it off", () => {
+    const saved = JSON.parse(
+      new TextDecoder().decode(
+        Uint8Array.from(atob(encodeTrip(trip)), (char) => char.charCodeAt(0)),
+      ),
+    ) as Record<string, unknown>;
+    delete saved.minimize;
+    const bytes = new TextEncoder().encode(JSON.stringify(saved));
+    let binary = "";
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    expect(decodeTrip(btoa(binary))?.minimize).toBe(true);
+    expect(decodeTrip(encodeTrip({ ...trip, minimize: false }))?.minimize).toBe(false);
+  });
+
   it("rejects a broken hash", () => {
     expect(tripFromHash("")).toBeNull();
     expect(tripFromHash("#")).toBeNull();
