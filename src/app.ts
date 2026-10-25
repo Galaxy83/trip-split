@@ -104,6 +104,7 @@ export function mount(root: HTMLElement): void {
       h("button", { type: "button", class: "primary", "data-action": "share" }, t().share);
 
     root.replaceChildren(
+      appBar(theme),
       h(
         "div",
         { class: "wrap" },
@@ -113,21 +114,7 @@ export function mount(root: HTMLElement): void {
           h("p", { class: "kicker" }, t().kicker),
           h("h1", null, t().pageTitle),
           h("p", { class: "tagline" }, t().tagline),
-          h(
-            "div",
-            { class: "top-actions" },
-            currencyLabel,
-            choiceGroup(t().theme, "theme", [
-              { value: "system", label: t().themeSystem, selected: theme === "system" },
-              { value: "light", label: t().themeLight, selected: theme === "light" },
-              { value: "dark", label: t().themeDark, selected: theme === "dark" },
-            ]),
-            choiceGroup(t().language, "lang", [
-              { value: "en", label: t().langEnglish, selected: uiLang === "en" },
-              { value: "he", label: t().langHebrew, selected: uiLang === "he" },
-            ]),
-            shareButton(),
-          ),
+          h("div", { class: "top-actions" }, currencyLabel, shareButton()),
         ),
         h(
           "section",
@@ -182,22 +169,6 @@ export function mount(root: HTMLElement): void {
     const target = event.target;
     if (!(target instanceof Element)) return;
     const choice = target.closest<HTMLElement>("[data-choice]");
-    if (choice?.dataset.choice === "theme" && choice.dataset.value) {
-      theme = parseTheme(choice.dataset.value);
-      saveTheme(theme);
-      applyThemeChoice(theme);
-      syncChoices();
-      return;
-    }
-    if (choice?.dataset.choice === "lang" && choice.dataset.value) {
-      const next = parseLang(choice.dataset.value);
-      if (next === uiLang) return;
-      uiLang = next;
-      saveLang(uiLang);
-      paint();
-      persist();
-      return;
-    }
     if (choice?.dataset.choice === "kind" && choice.dataset.playerId && choice.dataset.value) {
       setEntryType(choice.dataset.playerId, choice.dataset.value);
       return;
@@ -222,17 +193,6 @@ export function mount(root: HTMLElement): void {
 
   paint();
   persist();
-
-  function syncChoices(): void {
-    for (const button of root.querySelectorAll<HTMLButtonElement>("[data-choice]")) {
-      let selected = false;
-      if (button.dataset.choice === "theme") selected = button.dataset.value === theme;
-      else if (button.dataset.choice === "lang") selected = button.dataset.value === uiLang;
-      else continue;
-      button.setAttribute("aria-pressed", selected ? "true" : "false");
-      button.classList.toggle("is-selected", selected);
-    }
-  }
 
   function onEdit(event: Event): void {
     const target = event.target;
@@ -274,6 +234,21 @@ export function mount(root: HTMLElement): void {
       state.currency = next;
       persist();
       renderSummary();
+      return;
+    }
+    if (target.id === "theme" && target instanceof HTMLSelectElement) {
+      theme = parseTheme(target.value);
+      saveTheme(theme);
+      applyThemeChoice(theme);
+      return;
+    }
+    if (target.id === "lang" && target instanceof HTMLSelectElement) {
+      const next = parseLang(target.value);
+      if (next === uiLang) return;
+      uiLang = next;
+      saveLang(uiLang);
+      paint();
+      persist();
       return;
     }
     if (target.id === "minimize" && target instanceof HTMLInputElement) {
@@ -595,6 +570,7 @@ export function mount(root: HTMLElement): void {
     const name = nameOf(player.name, index);
     const input = h("input", {
       type: "text",
+      class: "player-name",
       dir: "auto",
       placeholder: t().memberPlaceholder,
       "aria-label": t().memberName,
@@ -610,6 +586,7 @@ export function mount(root: HTMLElement): void {
       "button",
       {
         type: "button",
+        class: "player-remove",
         "data-remove-player": player.id,
         "aria-label": label,
         title: label,
@@ -619,7 +596,7 @@ export function mount(root: HTMLElement): void {
     remove.disabled = !canRemove;
     const group = entryType(player) === "group";
     const kind = h("div", {
-      class: "choice",
+      class: "kind-toggle",
       role: "group",
       "aria-label": `${name} ${t().entryType}`,
     });
@@ -642,7 +619,10 @@ export function mount(root: HTMLElement): void {
         ),
       );
     }
-    const meta = h("div", { class: "player-kind" }, kind);
+    const main = h("div", { class: "player-main" });
+    main.append(input, kind, remove);
+    const row = h("div", { class: "player-row" });
+    row.append(main);
     if (group) {
       const weight = h("input", {
         type: "text",
@@ -652,15 +632,14 @@ export function mount(root: HTMLElement): void {
         "data-player-id": player.id,
         "data-field": "weight",
         "aria-label": `${name} ${t().payingMembers}`,
+        title: t().payingMembers,
         autocomplete: "off",
       });
       weight.value = String(entryWeight(player));
       const weightLabel = h("label", { class: "weight-field" });
-      weightLabel.append(t().payingMembers, weight);
-      meta.append(weightLabel);
+      weightLabel.append(h("span", null, t().payingMembers), weight);
+      row.append(weightLabel);
     }
-    const row = h("div", { class: "player-row" });
-    row.append(input, remove, meta);
     return row;
   }
 
@@ -950,31 +929,37 @@ function applyThemeChoice(choice: ThemeChoice): void {
   root.style.colorScheme = dark ? "dark" : "light";
 }
 
-function choiceGroup(
-  label: string,
-  choice: string,
-  options: readonly { value: string; label: string; selected: boolean }[],
-): HTMLElement {
-  const caption = h("span", { class: "choice-caption", id: `choice-${choice}` }, label);
-  const buttons = h("div", { class: "choice-options" });
-  for (const option of options) {
-    buttons.append(
-      h(
-        "button",
-        {
-          type: "button",
-          class: option.selected ? "choice-btn is-selected" : "choice-btn",
-          "data-choice": choice,
-          "data-value": option.value,
-          "aria-pressed": option.selected ? "true" : "false",
-        },
-        option.label,
-      ),
-    );
+function appBar(choice: ThemeChoice): HTMLElement {
+  const lang = h("select", { id: "lang", "aria-label": t().language });
+  for (const option of [
+    { value: "en", label: t().langEnglish },
+    { value: "he", label: t().langHebrew },
+    { value: "ru", label: t().langRussian },
+  ]) {
+    const node = h("option", { value: option.value }, option.label);
+    node.selected = option.value === uiLang;
+    lang.append(node);
   }
-  const group = h("div", { class: "choice", role: "group", "aria-labelledby": caption.id });
-  group.append(caption, buttons);
-  return group;
+  const themeSelect = h("select", { id: "theme", "aria-label": t().theme });
+  for (const option of [
+    { value: "system", label: t().themeSystem },
+    { value: "light", label: t().themeLight },
+    { value: "dark", label: t().themeDark },
+  ]) {
+    const node = h("option", { value: option.value }, option.label);
+    node.selected = option.value === choice;
+    themeSelect.append(node);
+  }
+  const bar = h("div", { class: "app-bar" });
+  bar.append(
+    h(
+      "div",
+      { class: "app-bar-inner" },
+      h("label", { class: "bar-field" }, h("span", null, t().language), lang),
+      h("label", { class: "bar-field" }, h("span", null, t().theme), themeSelect),
+    ),
+  );
+  return bar;
 }
 
 async function copyText(text: string): Promise<boolean> {
