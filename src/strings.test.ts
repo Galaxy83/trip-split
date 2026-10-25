@@ -37,6 +37,9 @@ describe("copy", () => {
     expect(copyFor("ru").keepTwo).toBe("Нужно оставить хотя бы двух участников");
     expect(copyFor("ru").payingMembers).toBe("Люди, которые делят стоимость");
     expect(copyFor("ru").langRussian).toBe("Русский");
+    expect(copyFor("en").balanceCaption).toBe("Weight, spent, share, and balance for each entry");
+    expect(copyFor("he").balanceCaption).toBe("משקל, כמה שולם, החלק, והיתרה");
+    expect(copyFor("ru").balanceCaption).toBe("Вес, потраченная сумма, доля и баланс каждой записи");
     expect(copyFor("en").breakdown).toBe("Breakdown per member");
     expect(copyFor("he").breakdown).toBe("פירוט לפי חבר");
     expect(copyFor("ru").breakdown).toBe("Разбивка по участникам");
