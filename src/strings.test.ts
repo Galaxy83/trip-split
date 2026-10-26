@@ -50,7 +50,10 @@ describe("copy", () => {
     expect(copyFor("en").chartEmpty).toBe("No spending yet.");
     expect(copyFor("he").chartCompare).toBe("שולם מול חלק הוגן");
     expect(copyFor("ru").chartUnderOne).toBe("Менее 1%");
-    expect(copyFor("he").chartSummary("₪10.00")).toBe("מי שילם, סה״כ \u2066₪10.00\u2069");
+    expect(copyFor("en").chartRings).toBe("Outer ring is what they paid. Inner ring is the fair share.");
+    expect(copyFor("he").chartRings).toBe("הטבעת החיצונית היא מה ששולם. הטבעת הפנימית היא החלק ההוגן.");
+    expect(copyFor("ru").chartDifference).toBe("Разница");
+    expect(copyFor("he").chartSummary("₪10.00")).toBe("שולם מול חלק הוגן, סה״כ \u2066₪10.00\u2069");
   });
 
   it("uses Russian plural forms for counts", () => {

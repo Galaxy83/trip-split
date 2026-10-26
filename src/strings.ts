@@ -72,6 +72,8 @@ export interface Copy {
   chartPaid: string;
   chartEmpty: string;
   chartCompare: string;
+  chartRings: string;
+  chartDifference: string;
   chartUnderOne: string;
   chartSummary: (total: string) => string;
   showFor: string;
@@ -152,8 +154,10 @@ const english: Copy = {
   chartPaid: "Who paid",
   chartEmpty: "No spending yet.",
   chartCompare: "Paid and fair share",
+  chartRings: "Outer ring is what they paid. Inner ring is the fair share.",
+  chartDifference: "Difference",
   chartUnderOne: "Under 1%",
-  chartSummary: (total) => `Who paid, ${total} in total`,
+  chartSummary: (total) => `Paid and fair share, ${total} in total`,
   showFor: "Show for",
   nothingForMember: "Nothing to pay or receive.",
   balanceLine: (spent, share, balance) => `Spent ${spent} · Share ${share} · Balance ${balance}`,
@@ -244,8 +248,10 @@ const hebrew: Copy = {
   chartPaid: "מי שילם",
   chartEmpty: "עדיין אין הוצאות.",
   chartCompare: "שולם מול חלק הוגן",
+  chartRings: "הטבעת החיצונית היא מה ששולם. הטבעת הפנימית היא החלק ההוגן.",
+  chartDifference: "הפרש",
   chartUnderOne: "פחות מ־1%",
-  chartSummary: (total) => `מי שילם, סה״כ \u2066${total}\u2069`,
+  chartSummary: (total) => `שולם מול חלק הוגן, סה״כ \u2066${total}\u2069`,
   showFor: "הצגה עבור",
   nothingForMember: "אין מה לשלם או לקבל.",
   balanceLine: (spent, share, balance) => `שילם ${spent} · חלק ${share} · יתרה ${balance}`,
@@ -336,8 +342,10 @@ const russian: Copy = {
   chartPaid: "Кто заплатил",
   chartEmpty: "Пока нет расходов.",
   chartCompare: "Оплачено и справедливая доля",
+  chartRings: "Внешнее кольцо — сколько оплачено. Внутреннее кольцо — справедливая доля.",
+  chartDifference: "Разница",
   chartUnderOne: "Менее 1%",
-  chartSummary: (total) => `Кто заплатил, всего ${total}`,
+  chartSummary: (total) => `Оплачено и справедливая доля, всего ${total}`,
   showFor: "Показать для",
   nothingForMember: "Нечего платить или получать.",
   balanceLine: (spent, share, balance) => `Потрачено ${spent} · Доля ${share} · Баланс ${balance}`,
