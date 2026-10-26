@@ -507,15 +507,10 @@ button:disabled {
   pointer-events: none;
 }
 
-.donut-hole .stat-label {
-  letter-spacing: 0;
-  text-transform: none;
-}
-
 .donut-total {
-  margin: 0.05rem 0 0;
+  margin: 0;
   font-family: var(--display);
-  font-size: clamp(0.75rem, 1.8vw, 0.95rem);
+  font-size: clamp(0.85rem, 2.2vw, 1.05rem);
   font-weight: 560;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
@@ -523,48 +518,7 @@ button:disabled {
   max-width: 100%;
 }
 
-.donut-each {
-  margin: 0.12rem 0 0;
-  color: var(--muted);
-  font-size: 0.72rem;
-  line-height: 1.2;
-  max-width: 100%;
-}
-
 .donut-share { stroke-opacity: 0.45; }
-
-.ring-note {
-  margin: -0.2rem 0 0.55rem;
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-
-.ring-key {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem 0.85rem;
-  margin: 0 0 0.45rem;
-  color: var(--muted);
-  font-size: 0.78rem;
-}
-
-.ring-key > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.key-mark {
-  width: 1.15rem;
-  height: 0.42rem;
-  border-radius: 999px;
-  background: var(--ink);
-}
-
-.key-mark.is-share {
-  height: 0.28rem;
-  opacity: 0.45;
-}
 
 .chart-empty {
   margin: 0 0 0.45rem;
@@ -614,6 +568,8 @@ button:disabled {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+
+.legend-amt.is-share { color: var(--muted); }
 
 .legend-k { color: var(--muted); font-weight: 500; }
 

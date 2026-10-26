@@ -824,7 +824,10 @@ function personalBlock(result: Settlement, currency: string, state: TripState): 
 function spendingChartBlock(result: Settlement, currency: string): HTMLElement {
   const chart = spendingChart(result.balances);
   const totalText = formatMoney(chart.total, currency);
-  const label = chart.empty ? t().chartEmpty : t().chartSummary(totalText);
+  const eachText = formatMoney(result.share, currency);
+  const label = chart.empty
+    ? t().chartEmpty
+    : `${t().chartSummary(totalText)} ${t().fairShare} ${eachText}. ${t().chartRings}`;
   const tracks: Array<{ radius: number; width: number }> = [PAID_RING, SHARE_RING];
 
   const rings: SVGElement[] = tracks.map((ring) =>
@@ -866,15 +869,7 @@ function spendingChartBlock(result: Settlement, currency: string): HTMLElement {
     ...rings,
   );
 
-  const each = h("p", { class: "donut-each" });
-  each.append(ltr(formatMoney(result.share, currency)), ` ${t().each}`);
-  const hole = h(
-    "div",
-    { class: "donut-hole" },
-    h("p", { class: "stat-label" }, t().totalSpent),
-    h("p", { class: "donut-total" }, ltr(totalText)),
-    each,
-  );
+  const hole = h("div", { class: "donut-hole", "aria-hidden": "true" }, h("p", { class: "donut-total" }, ltr(totalText)));
   const donut = h("div", { class: "donut" }, picture, hole);
 
   const legend = h("ul", { class: "legend" });
@@ -894,26 +889,18 @@ function spendingChartBlock(result: Settlement, currency: string): HTMLElement {
         h(
           "span",
           { class: "legend-nums" },
-          legendAmount(t().spent, formatMoney(member.spent, currency)),
-          legendAmount(t().entryShare, formatMoney(member.share, currency)),
-          legendAmount(t().chartDifference, formatSignedMoney(member.difference, currency), diffClass),
+          legendAmount(t().spent, formatMoney(member.spent, currency), "is-paid"),
+          legendAmount(t().entryShare, formatMoney(member.share, currency), "is-share"),
+          legendAmount(t().chartDifference, formatSignedMoney(member.difference, currency), diffClass, true),
         ),
       ),
     );
   }
 
-  const key = h(
-    "p",
-    { class: "ring-key" },
-    h("span", null, h("span", { class: "key-mark", "aria-hidden": "true" }), t().spent),
-    h("span", null, h("span", { class: "key-mark is-share", "aria-hidden": "true" }), t().entryShare),
-  );
-
   return h(
     "div",
     { class: "spend-chart" },
-    h("h3", { id: "spend-chart-title" }, t().chartCompare),
-    h("p", { class: "ring-note" }, t().chartRings),
+    h("h3", { id: "spend-chart-title", class: "sr-only" }, t().chartCompare),
     h(
       "div",
       { class: "donut-layout" },
@@ -921,7 +908,6 @@ function spendingChartBlock(result: Settlement, currency: string): HTMLElement {
       h(
         "div",
         { class: "legend-wrap" },
-        key,
         chart.empty ? h("p", { class: "chart-empty" }, t().chartEmpty) : false,
         legend,
       ),
@@ -929,9 +915,14 @@ function spendingChartBlock(result: Settlement, currency: string): HTMLElement {
   );
 }
 
-function legendAmount(label: string, amount: string, tone?: string): HTMLElement {
-  const line = h("span", { class: tone ? `legend-amt ${tone}` : "legend-amt" });
-  line.append(h("span", { class: "legend-k" }, label), " ", ltr(amount));
+function legendAmount(label: string, amount: string, tone?: string, showLabel = false): HTMLElement {
+  const line = h("span", {
+    class: tone ? `legend-amt ${tone}` : "legend-amt",
+    "aria-label": `${label} ${amount}`,
+    title: `${label} ${amount}`,
+  });
+  if (showLabel) line.append(h("span", { class: "legend-k" }, label), " ");
+  line.append(ltr(amount));
   return line;
 }
 
