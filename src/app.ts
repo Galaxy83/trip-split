@@ -1,3 +1,4 @@
+import { PAID_RING, SHARE_RING, spendingChart } from "./chart";
 import { encodeTrip, tripFromHash } from "./codec";
 import {
   currencyName,
@@ -336,6 +337,7 @@ async function boot(root: HTMLElement): Promise<void> {
     const currency = activeCurrency();
     summaryBody.replaceChildren(
       stats(result, currency),
+      spendingChartBlock(result, currency),
       balanceTable(result, currency, state),
       settlementBlock(result, currency, state.minimize),
       personalBlock(result, currency, state),
@@ -819,6 +821,120 @@ function personalBlock(result: Settlement, currency: string, state: TripState): 
   return block;
 }
 
+function spendingChartBlock(result: Settlement, currency: string): HTMLElement {
+  const chart = spendingChart(result.balances);
+  const totalText = formatMoney(chart.total, currency);
+  const label = chart.empty ? t().chartEmpty : t().chartSummary(totalText);
+  const tracks: Array<{ radius: number; width: number }> = [PAID_RING, SHARE_RING];
+
+  const rings: SVGElement[] = tracks.map((ring) =>
+    svg("circle", {
+      class: "donut-track",
+      cx: "100",
+      cy: "100",
+      r: String(ring.radius),
+      fill: "none",
+      "stroke-width": String(ring.width),
+    }),
+  );
+  for (const arc of chart.arcs) {
+    const shape = arc.full
+      ? svg("circle", {
+          cx: "100",
+          cy: "100",
+          r: String(arc.radius),
+          fill: "none",
+          "stroke-width": String(arc.width),
+        })
+      : svg("path", { d: arc.d ?? "", fill: "none", "stroke-width": String(arc.width) });
+    shape.setAttribute("stroke", arc.color);
+    if (arc.ring === "share") shape.setAttribute("class", "donut-share");
+    const title = svg("title");
+    const member = chart.members.find((item) => item.id === arc.id);
+    if (member) {
+      const amount = arc.ring === "paid" ? member.spent : member.share;
+      const kind = arc.ring === "paid" ? t().spent : t().entryShare;
+      title.textContent = `${member.name}, ${kind} ${formatMoney(amount, currency)}`;
+    }
+    shape.append(title);
+    rings.push(shape);
+  }
+
+  const picture = svg(
+    "svg",
+    { viewBox: "0 0 200 200", role: "img", "aria-label": label, focusable: "false" },
+    ...rings,
+  );
+
+  const each = h("p", { class: "donut-each" });
+  each.append(ltr(formatMoney(result.share, currency)), ` ${t().each}`);
+  const hole = h(
+    "div",
+    { class: "donut-hole" },
+    h("p", { class: "stat-label" }, t().totalSpent),
+    h("p", { class: "donut-total" }, ltr(totalText)),
+    each,
+  );
+  const donut = h("div", { class: "donut" }, picture, hole);
+
+  const legend = h("ul", { class: "legend" });
+  for (const member of chart.members) {
+    const swatch = h("span", { class: "swatch", "aria-hidden": "true" });
+    swatch.style.background = member.color;
+    const name = h("bdi");
+    name.textContent = member.name;
+    const cents = Math.round(member.difference * 100 + Math.sign(member.difference) * 1e-6);
+    const diffClass = cents > 0 ? "pos" : cents < 0 ? "neg" : "zero";
+    legend.append(
+      h(
+        "li",
+        null,
+        swatch,
+        h("span", { class: "legend-name" }, name),
+        h(
+          "span",
+          { class: "legend-nums" },
+          legendAmount(t().spent, formatMoney(member.spent, currency)),
+          legendAmount(t().entryShare, formatMoney(member.share, currency)),
+          legendAmount(t().chartDifference, formatSignedMoney(member.difference, currency), diffClass),
+        ),
+      ),
+    );
+  }
+
+  const key = h(
+    "p",
+    { class: "ring-key" },
+    h("span", null, h("span", { class: "key-mark", "aria-hidden": "true" }), t().spent),
+    h("span", null, h("span", { class: "key-mark is-share", "aria-hidden": "true" }), t().entryShare),
+  );
+
+  return h(
+    "div",
+    { class: "spend-chart" },
+    h("h3", { id: "spend-chart-title" }, t().chartCompare),
+    h("p", { class: "ring-note" }, t().chartRings),
+    h(
+      "div",
+      { class: "donut-layout" },
+      donut,
+      h(
+        "div",
+        { class: "legend-wrap" },
+        key,
+        chart.empty ? h("p", { class: "chart-empty" }, t().chartEmpty) : false,
+        legend,
+      ),
+    ),
+  );
+}
+
+function legendAmount(label: string, amount: string, tone?: string): HTMLElement {
+  const line = h("span", { class: tone ? `legend-amt ${tone}` : "legend-amt" });
+  line.append(h("span", { class: "legend-k" }, label), " ", ltr(amount));
+  return line;
+}
+
 function stats(result: Settlement, currency: string): HTMLElement {
   return h(
     "div",
@@ -946,6 +1062,22 @@ function field(label: string, control: HTMLElement): HTMLLabelElement {
   const wrap = h("label", { class: "field" });
   wrap.append(h("span", { class: "label" }, label), control);
   return wrap;
+}
+
+function svg<K extends keyof SVGElementTagNameMap>(
+  tag: K,
+  attrs?: Record<string, string> | null,
+  ...children: Array<Node | string | null | undefined | false>
+): SVGElementTagNameMap[K] {
+  const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  if (attrs) {
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+  }
+  for (const child of children) {
+    if (child == null || child === false) continue;
+    node.append(child);
+  }
+  return node;
 }
 
 function h<K extends keyof HTMLElementTagNameMap>(

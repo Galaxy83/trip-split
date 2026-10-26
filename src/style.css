@@ -469,6 +469,158 @@ button:disabled {
   font-size: 0.85rem;
 }
 
+.spend-chart { margin-top: 1rem; }
+
+.spend-chart > h3:first-child { margin-top: 0.15rem; }
+
+.donut-layout {
+  display: grid;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.donut {
+  position: relative;
+  width: min(100%, 15.5rem);
+  margin-inline: auto;
+  aspect-ratio: 1;
+}
+
+.donut svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.donut-track {
+  stroke: color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+.donut-hole {
+  position: absolute;
+  inset: 32%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.donut-hole .stat-label {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.donut-total {
+  margin: 0.05rem 0 0;
+  font-family: var(--display);
+  font-size: clamp(0.75rem, 1.8vw, 0.95rem);
+  font-weight: 560;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  max-width: 100%;
+}
+
+.donut-each {
+  margin: 0.12rem 0 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  max-width: 100%;
+}
+
+.donut-share { stroke-opacity: 0.45; }
+
+.ring-note {
+  margin: -0.2rem 0 0.55rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.ring-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.85rem;
+  margin: 0 0 0.45rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.ring-key > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.key-mark {
+  width: 1.15rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: var(--ink);
+}
+
+.key-mark.is-share {
+  height: 0.28rem;
+  opacity: 0.45;
+}
+
+.chart-empty {
+  margin: 0 0 0.45rem;
+  color: var(--muted);
+}
+
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.legend li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.1rem 0.45rem;
+  align-items: center;
+}
+
+.swatch {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.legend li .swatch { grid-row: 1 / span 2; }
+
+.legend-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.legend-nums {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.12rem 0.7rem;
+  grid-column: 2;
+}
+
+.legend-amt {
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.legend-k { color: var(--muted); font-weight: 500; }
+
+.legend-amt.pos,
+.legend-amt.neg,
+.legend-amt.zero { font-weight: 600; }
+
 .table-wrap { margin-top: 0.9rem; }
 
 .balance {
@@ -724,10 +876,14 @@ dialog p { margin: 0; }
 
 [dir="rtl"] h1,
 [dir="rtl"] h2,
+[dir="rtl"] h3,
 [dir="rtl"] .stat-value,
+[dir="rtl"] .donut-total,
 :root[lang="ru"] h1,
 :root[lang="ru"] h2,
-:root[lang="ru"] .stat-value {
+:root[lang="ru"] h3,
+:root[lang="ru"] .stat-value,
+:root[lang="ru"] .donut-total {
   font-family: var(--font);
 }
 
@@ -744,6 +900,14 @@ dialog p { margin: 0; }
 
 @media (min-width: 420px) {
   .stats { grid-template-columns: 1fr 1fr; }
+}
+
+@media (min-width: 560px) {
+  .donut-layout {
+    grid-template-columns: 13.25rem minmax(0, 1fr);
+  }
+
+  .donut { width: 100%; }
 }
 
 @media (min-width: 760px) {

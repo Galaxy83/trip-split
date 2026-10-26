@@ -69,6 +69,13 @@ export interface Copy {
   minimizeHint: string;
   allSettled: string;
   breakdown: string;
+  chartPaid: string;
+  chartEmpty: string;
+  chartCompare: string;
+  chartRings: string;
+  chartDifference: string;
+  chartUnderOne: string;
+  chartSummary: (total: string) => string;
   showFor: string;
   nothingForMember: string;
   balanceLine: (spent: string, share: string, balance: string) => string;
@@ -130,7 +137,7 @@ const english: Copy = {
   each: "each",
   entryType: "Type",
   entryMember: "Member",
-  entryGroup: "Family/Group",
+  entryGroup: "Family",
   weight: "Weight",
   payingMembers: "People sharing the cost",
   entryShare: "Share",
@@ -144,6 +151,13 @@ const english: Copy = {
   minimizeHint: "Match the largest debt to the largest credit, so there are fewer transfers.",
   allSettled: "Everyone is even. No payments.",
   breakdown: "Breakdown per member",
+  chartPaid: "Who paid",
+  chartEmpty: "No spending yet.",
+  chartCompare: "Paid and fair share",
+  chartRings: "Outer ring is what they paid. Inner ring is the fair share.",
+  chartDifference: "Difference",
+  chartUnderOne: "Under 1%",
+  chartSummary: (total) => `Paid and fair share, ${total} in total`,
   showFor: "Show for",
   nothingForMember: "Nothing to pay or receive.",
   balanceLine: (spent, share, balance) => `Spent ${spent} · Share ${share} · Balance ${balance}`,
@@ -217,7 +231,7 @@ const hebrew: Copy = {
   each: "לאדם",
   entryType: "סוג",
   entryMember: "חבר",
-  entryGroup: "משפחה/קבוצה",
+  entryGroup: "משפחה",
   weight: "משקל",
   payingMembers: "האנשים שמחלקים את העלות",
   entryShare: "חלק",
@@ -231,6 +245,13 @@ const hebrew: Copy = {
   minimizeHint: "החוב הגדול ביותר מותאם לזכות הגדולה ביותר, כדי שיהיו פחות העברות.",
   allSettled: "הכול מאוזן. אין תשלומים.",
   breakdown: "פירוט לפי חבר",
+  chartPaid: "מי שילם",
+  chartEmpty: "עדיין אין הוצאות.",
+  chartCompare: "שולם מול חלק הוגן",
+  chartRings: "הטבעת החיצונית היא מה ששולם. הטבעת הפנימית היא החלק ההוגן.",
+  chartDifference: "הפרש",
+  chartUnderOne: "פחות מ־1%",
+  chartSummary: (total) => `שולם מול חלק הוגן, סה״כ \u2066${total}\u2069`,
   showFor: "הצגה עבור",
   nothingForMember: "אין מה לשלם או לקבל.",
   balanceLine: (spent, share, balance) => `שילם ${spent} · חלק ${share} · יתרה ${balance}`,
@@ -304,7 +325,7 @@ const russian: Copy = {
   each: "на человека",
   entryType: "Тип",
   entryMember: "Участник",
-  entryGroup: "Семья/группа",
+  entryGroup: "Семья",
   weight: "Вес",
   payingMembers: "Люди, которые делят стоимость",
   entryShare: "Доля",
@@ -318,6 +339,13 @@ const russian: Copy = {
   minimizeHint: "Самый большой долг гасится самым большим остатком, чтобы переводов было меньше.",
   allSettled: "Никто никому не должен. Платежей нет.",
   breakdown: "Разбивка по участникам",
+  chartPaid: "Кто заплатил",
+  chartEmpty: "Пока нет расходов.",
+  chartCompare: "Оплачено и справедливая доля",
+  chartRings: "Внешнее кольцо — сколько оплачено. Внутреннее кольцо — справедливая доля.",
+  chartDifference: "Разница",
+  chartUnderOne: "Менее 1%",
+  chartSummary: (total) => `Оплачено и справедливая доля, всего ${total}`,
   showFor: "Показать для",
   nothingForMember: "Нечего платить или получать.",
   balanceLine: (spent, share, balance) => `Потрачено ${spent} · Доля ${share} · Баланс ${balance}`,
