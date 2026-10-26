@@ -10,10 +10,10 @@ Live site: https://galaxy83.github.io/trip-split/
 
 1. Add at least two members.
 2. Add expenses: a description, who paid, and the amount.
-3. Read the summary. It updates as you type.
+3. Read the summary. It updates as you type. A chart shows each member’s share of what was paid, and bars compare that with their fair share.
 4. **Share**, or **Copy for WhatsApp**, to send the result.
 
-A **Member** counts as one person. **Family/Group** asks how many people are sharing the cost (the weight, at least 1, default 2) and is settled as one entry: “Cohen family pays Maxim”. Fair share per member is the total divided by the sum of the weights. Each entry’s share is that amount times its weight. An older share link treats every entry as a member of weight 1.
+A **Member** counts as one person. **Family** asks how many people are sharing the cost (the weight, at least 1, default 2) and is settled as one entry: “Cohen family pays Maxim”. Fair share per member is the total divided by the sum of the weights. Each entry’s share is that amount times its weight. An older share link treats every entry as a member of weight 1.
 
 Amounts use two decimal places. The currency dropdown defaults to the Israeli shekel. Older links that stored a symbol such as ₪, €, or $ still open on the matching currency, or on the shekel when the symbol is unknown. Blank and invalid rows are ignored. Negative amounts are rejected.
 
@@ -29,7 +29,7 @@ The theme follows this device until you choose Light or Dark. That choice stays 
 
 1. הוסיפו לפחות שני חברים.
 2. הוסיפו הוצאות: תיאור, מי שילם, וסכום.
-אפשר לסמן רשומה כחבר, או כמשפחה/קבוצה ולבחור כמה אנשים מחלקים את העלות. החלק ההוגן לכל חבר הוא הסכום חלקי סך המשקלות. קישור ישן נפתח כשכל הרשומות הן חברים במשקל 1. המטבע הוא רשימה, וברירת המחדל היא שקל.
+אפשר לסמן רשומה כחבר, או כמשפחה ולבחור כמה אנשים מחלקים את העלות. החלק ההוגן לכל חבר הוא הסכום חלקי סך המשקלות. קישור ישן נפתח כשכל הרשומות הן חברים במשקל 1. המטבע הוא רשימה, וברירת המחדל היא שקל. בסיכום יש תרשים של מי שילם, ועמודות שמשוות את מה ששולם לחלק ההוגן.
 
 3. הסיכום מתעדכן תוך כדי הקלדה, כולל החלק ההוגן לכל חבר.
 4. **שיתוף** מעתיק קישור. **העתקה לוואטסאפ** מעתיקה את מי משלם למי.
@@ -38,7 +38,7 @@ The theme follows this device until you choose Light or Dark. That choice stays 
 
 По умолчанию страница на английском. Русский выбирается в шапке и остаётся слева направо. Язык сохраняется на этом устройстве и попадает в ссылку (`?lang=ru`), поэтому получатель откроет поездку по-русски. Смена языка обновляет ссылку. Старая ссылка без языка открывается на сохранённом языке или на английском.
 
-Участник считается как один человек. Семья/группа указывает, сколько людей делят стоимость (вес, минимум 1, по умолчанию 2), и рассчитывается одной записью: «Cohen family платит Maxim». Справедливая доля на человека — это сумма, делённая на общий вес.
+Участник считается как один человек. Семья указывает, сколько людей делят стоимость (вес, минимум 1, по умолчанию 2), и рассчитывается одной записью: «Cohen family платит Maxim». Справедливая доля на человека — это сумма, делённая на общий вес. В итоге есть диаграмма того, кто сколько заплатил, и полоски, которые сравнивают оплату со справедливой долей.
 
 English, Hebrew, and Russian copy live in `src/strings.ts`.
 

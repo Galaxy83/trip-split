@@ -1,3 +1,4 @@
+import { barFraction, percentLabel, spendingChart } from "./chart";
 import { encodeTrip, tripFromHash } from "./codec";
 import {
   currencyName,
@@ -336,6 +337,7 @@ async function boot(root: HTMLElement): Promise<void> {
     const currency = activeCurrency();
     summaryBody.replaceChildren(
       stats(result, currency),
+      spendingChartBlock(result, currency),
       balanceTable(result, currency, state),
       settlementBlock(result, currency, state.minimize),
       personalBlock(result, currency, state),
@@ -819,6 +821,126 @@ function personalBlock(result: Settlement, currency: string, state: TripState): 
   return block;
 }
 
+function spendingChartBlock(result: Settlement, currency: string): HTMLElement {
+  const chart = spendingChart(result.balances);
+  const totalText = formatMoney(chart.total, currency);
+  const label = chart.empty ? t().chartEmpty : t().chartSummary(totalText);
+
+  const rings: SVGElement[] = [
+    svg("circle", {
+      class: "donut-track",
+      cx: "100",
+      cy: "100",
+      r: "68",
+      fill: "none",
+      "stroke-width": "22",
+    }),
+  ];
+  for (const arc of chart.arcs) {
+    const shape = arc.full
+      ? svg("circle", { cx: "100", cy: "100", r: "68", fill: "none", "stroke-width": "22" })
+      : svg("path", { d: arc.d ?? "", fill: "none", "stroke-width": "22" });
+    shape.setAttribute("stroke", arc.color);
+    const title = svg("title");
+    const member = chart.members.find((item) => item.id === arc.id);
+    title.textContent = member
+      ? `${member.name}, ${formatMoney(member.spent, currency)}, ${percentLabel(member.percent, member.spent, t().chartUnderOne)}`
+      : "";
+    shape.append(title);
+    rings.push(shape);
+  }
+
+  const picture = svg(
+    "svg",
+    { viewBox: "0 0 200 200", role: "img", "aria-label": label, focusable: "false" },
+    ...rings,
+  );
+
+  const hole = h(
+    "div",
+    { class: "donut-hole" },
+    h("p", { class: "stat-label" }, t().totalSpent),
+    h("p", { class: "donut-total" }, ltr(totalText)),
+  );
+  const donut = h("div", { class: "donut" }, picture, hole);
+
+  const legend = h("ul", { class: "legend" });
+  for (const member of chart.members) {
+    const swatch = h("span", { class: "swatch", "aria-hidden": "true" });
+    swatch.style.background = member.color;
+    const name = h("bdi");
+    name.textContent = member.name;
+    legend.append(
+      h(
+        "li",
+        null,
+        swatch,
+        h("span", { class: "legend-name" }, name),
+        h("span", { class: "legend-amt" }, ltr(formatMoney(member.spent, currency))),
+        h(
+          "span",
+          { class: "legend-pct" },
+          ltr(percentLabel(member.percent, member.spent, t().chartUnderOne)),
+        ),
+      ),
+    );
+  }
+
+  const layout = h(
+    "div",
+    { class: "donut-layout" },
+    donut,
+    h("div", { class: "legend-wrap" }, chart.empty ? h("p", { class: "chart-empty" }, t().chartEmpty) : false, legend),
+  );
+
+  const compare = h("ul", { class: "compare" });
+  for (const member of chart.members) {
+    const swatch = h("span", { class: "swatch", "aria-hidden": "true" });
+    swatch.style.background = member.color;
+    const name = h("bdi");
+    name.textContent = member.name;
+    compare.append(
+      h(
+        "li",
+        null,
+        h("p", { class: "compare-name" }, swatch, name),
+        barLine(t().spent, member.spent, member.color, chart.barMax, currency, false),
+        barLine(t().entryShare, member.share, member.color, chart.barMax, currency, true),
+      ),
+    );
+  }
+
+  return h(
+    "div",
+    { class: "spend-chart" },
+    h("h3", { id: "spend-chart-title" }, t().chartPaid),
+    layout,
+    h("h3", null, t().chartCompare),
+    compare,
+  );
+}
+
+function barLine(
+  label: string,
+  value: number,
+  color: string,
+  barMax: number,
+  currency: string,
+  share: boolean,
+): HTMLElement {
+  const width = `${(barFraction(value, barMax) * 100).toFixed(2)}%`;
+  const fill = h("span", { class: share ? "compare-fill is-share" : "compare-fill", "aria-hidden": "true" });
+  fill.style.width = width;
+  fill.style.backgroundColor = color;
+  return h(
+    "div",
+    { class: "compare-line" },
+    h("span", { class: "compare-label" }, label),
+    h("span", { class: "compare-track", "aria-hidden": "true" }, fill),
+    h("span", { class: "compare-amt" }, ltr(formatMoney(value, currency))),
+  );
+}
+
 function stats(result: Settlement, currency: string): HTMLElement {
   return h(
     "div",
@@ -946,6 +1068,22 @@ function field(label: string, control: HTMLElement): HTMLLabelElement {
   const wrap = h("label", { class: "field" });
   wrap.append(h("span", { class: "label" }, label), control);
   return wrap;
+}
+
+function svg<K extends keyof SVGElementTagNameMap>(
+  tag: K,
+  attrs?: Record<string, string> | null,
+  ...children: Array<Node | string | null | undefined | false>
+): SVGElementTagNameMap[K] {
+  const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  if (attrs) {
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+  }
+  for (const child of children) {
+    if (child == null || child === false) continue;
+    node.append(child);
+  }
+  return node;
 }
 
 function h<K extends keyof HTMLElementTagNameMap>(

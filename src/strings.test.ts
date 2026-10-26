@@ -10,9 +10,10 @@ describe("copy", () => {
     expect(copyFor("he").members).toBe("חברים");
     expect(copyFor("he").addMember).toBe("הוספת חבר");
     expect(copyFor("he").memberFallback(2)).toBe("חבר 2");
-    expect(copyFor("en").entryGroup).toBe("Family/Group");
+    expect(copyFor("en").entryGroup).toBe("Family");
     expect(copyFor("he").entryMember).toBe("חבר");
-    expect(copyFor("he").entryGroup).toBe("משפחה/קבוצה");
+    expect(copyFor("he").entryGroup).toBe("משפחה");
+    expect(copyFor("ru").entryGroup).toBe("Семья");
     expect(copyFor("en").payingMembers).toBe("People sharing the cost");
     expect(copyFor("he").payingMembers).toBe("האנשים שמחלקים את העלות");
   });
@@ -43,6 +44,13 @@ describe("copy", () => {
     expect(copyFor("en").breakdown).toBe("Breakdown per member");
     expect(copyFor("he").breakdown).toBe("פירוט לפי חבר");
     expect(copyFor("ru").breakdown).toBe("Разбивка по участникам");
+    expect(copyFor("en").chartPaid).toBe("Who paid");
+    expect(copyFor("he").chartPaid).toBe("מי שילם");
+    expect(copyFor("ru").chartPaid).toBe("Кто заплатил");
+    expect(copyFor("en").chartEmpty).toBe("No spending yet.");
+    expect(copyFor("he").chartCompare).toBe("שולם מול חלק הוגן");
+    expect(copyFor("ru").chartUnderOne).toBe("Менее 1%");
+    expect(copyFor("he").chartSummary("₪10.00")).toBe("מי שילם, סה״כ \u2066₪10.00\u2069");
   });
 
   it("uses Russian plural forms for counts", () => {
